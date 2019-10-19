@@ -5,6 +5,7 @@ Created on Thu Oct 17 23:22:36 2019
 @author: Lucas de Pace
 """
 import re
+from gurobipy import *
 
 class App:
     def __init__(self, n, age):
@@ -36,7 +37,7 @@ class Computador:
             self.nNucleos = nNucleos
             self.TB = TB
             self.N = N
-            self.TR = TR
+            self.TR = float(TR)
             
 class Repositorio:
     def __init__(self,o,SV,BV,TV):
@@ -89,7 +90,7 @@ for x in range(app.n):
     
 "Instanciando o app/tarefa"
 for x in range(app.n):
-    tarefa = Tarefa(result[x], s[x],qtdDados[x],arcos)
+    tarefa = Tarefa(int(result[x]), int(s[x]),qtdDados[x],arcos)
     app.addTarefa(tarefa)
 
 """
@@ -140,7 +141,7 @@ TR = TR[2].split()
 
 
 for x in range(network.nComputadores):
-    computador = Computador(tInstrucoes[x], nNucleo[x],TB[x], N[x], TR[x])
+    computador = Computador(float(tInstrucoes[x]), nNucleo[x],TB[x], N[x], TR[x])
     network.addComputador(computador)
 
 """
@@ -158,7 +159,7 @@ repositorio = Repositorio("","","","")
 
 "Lendo: o -> Numero de MV no repositorio"
 o = re.search('o: (.*)\n', fileVM)
-repositorio.o= int (o.group(1))
+repositorio.o= int(o.group(1))
 
 
 "SV -> Software disponivel na mv"
@@ -178,3 +179,26 @@ TV = re.findall('\(1\)(.*)\]\n', fileVM)
 TV = TV[2].split()
 repositorio.TV = TV
 
+
+
+sum = 0
+
+tMax = []
+
+softwaresRequeridos = []
+"Pegando todos os softwares requeridos pelas tarefas e tirando da lista os que sao repetidos ( ja foram baixados)"
+for i in range(app.n):
+    softwaresRequeridos.append([app.tarefas[i].idMV][0])
+softwaresRequeridos = list( dict.fromkeys(softwaresRequeridos) )
+
+for j in range(network.nComputadores):
+    for i in range(app.n):
+        sum += app.tarefas[i].nInstrucoes*network.computadores[j].tempoInstrucao
+        sum += int(repositorio.TV[app.tarefas[i].idMV-1])
+    for i in range(len(softwaresRequeridos)):
+        sum += float(repositorio.BV[softwaresRequeridos[i]])*network.computadores[j].TR
+
+    
+    tMax.append(sum)
+    sum = 0
+print(min(tMax))
