@@ -5,6 +5,7 @@ Created on Thu Oct 17 23:22:36 2019
 @author: Lucas de Pace
 """
 import re
+import numpy as np
 from gurobipy import *
 
 class App:
@@ -21,7 +22,7 @@ class Tarefa:
         self.nInstrucoes = nInstrucoes
         self.idMV = idMV
         self.qtdDados = qtdDados
-        self.arcos = arcos
+        self.arcos = arcos.split()
     
 class Network:
     def __init__(self,nComputadores):
@@ -90,7 +91,7 @@ for x in range(app.n):
     
 "Instanciando o app/tarefa"
 for x in range(app.n):
-    tarefa = Tarefa(int(result[x]), int(s[x]),qtdDados[x],arcos)
+    tarefa = Tarefa(int(result[x]), int(s[x]),qtdDados[x],arcos[x])
     app.addTarefa(tarefa)
 
 """
@@ -193,7 +194,9 @@ softwaresRequeridos = list( dict.fromkeys(softwaresRequeridos) )
 
 for j in range(network.nComputadores):
     for i in range(app.n):
+        "Primeiro somatorio"
         sum += app.tarefas[i].nInstrucoes*network.computadores[j].tempoInstrucao
+        "Terceiro somatorio ( -1 pois comeca no 0 o indice, nao no 1)"
         sum += int(repositorio.TV[app.tarefas[i].idMV-1])
     for i in range(len(softwaresRequeridos)):
         sum += float(repositorio.BV[softwaresRequeridos[i]])*network.computadores[j].TR
@@ -201,4 +204,42 @@ for j in range(network.nComputadores):
     
     tMax.append(sum)
     sum = 0
-print(min(tMax))
+    
+tMax = min(tMax)
+
+
+"""
+Constantes
+"""
+N = []
+for i in range (network.nComputadores):
+    N.append(network.computadores[i].nNucleos)
+V = []
+for i in range (app.n):
+    V.append(app.tarefas[i].idMV)
+    
+    
+    
+TB = np.zeros((len(V),network.nComputadores))
+for i in range(len(V)):
+    for j in range(network.nComputadores):
+        TB[i][j] = network.computadores[j].TR * float(repositorio.BV[i]) + float(repositorio.TV[i])
+        
+TE = np.zeros((app.n,network.nComputadores))
+for i in range(app.n):
+    for j in range(network.nComputadores):
+        TE[i][j] = app.tarefas[i].nInstrucoes * network.computadores[j].tempoInstrucao
+
+listaTarefa = []
+for i in range(app.n):
+    for j in range(app.n):
+        if app.tarefas[i].arcos[j] == '1':
+            listaTarefa.append([i,j])
+
+
+        
+
+x = model.addVar(0.0, 1.0, 1.0, GRB.BINARY, "x")
+vtmax = model.addVar(vtype=GRB.CONTINUOUS)
+y = model.addVar(0.0, 1.0, 1.0, GRB.BINARY, "y")
+
