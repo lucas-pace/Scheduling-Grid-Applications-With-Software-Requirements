@@ -230,16 +230,22 @@ for i in range(app.n):
     for j in range(network.nComputadores):
         TE[i][j] = app.tarefas[i].nInstrucoes * network.computadores[j].tempoInstrucao
 
+"""
+Passa pelos arcos procurando tarefas com arcos = 1. Quando acha, e colocado na listaTarefa e para cada dupla (A,B) de tarefas com arco,
+e calculado para todos os pares de computador da rede (k,l) o tempo que leva para transferir os dados da tarefa A no computador k para tarefa 
+B no computador l.
+"""
 listaTarefa = []
+TT = np.zeros((network.nComputadores,network.nComputadores))
 for i in range(app.n):
     for j in range(app.n):
         if app.tarefas[i].arcos[j] == '1':
-            listaTarefa.append([i,j])
+            for k in range(network.nComputadores):
+                for l in range(network.nComputadores):
+                    TT[k][l] = float(app.tarefas[i].qtdDados[j]) * float(network.computadores[k].TB[l])
+            listaTarefa.append([i,j,TT])
+            TT = np.zeros((network.nComputadores,network.nComputadores))
 
 
         
-
-x = model.addVar(0.0, 1.0, 1.0, GRB.BINARY, "x")
-vtmax = model.addVar(vtype=GRB.CONTINUOUS)
-y = model.addVar(0.0, 1.0, 1.0, GRB.BINARY, "y")
 
