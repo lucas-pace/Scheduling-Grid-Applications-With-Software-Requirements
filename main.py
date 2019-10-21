@@ -246,6 +246,37 @@ for i in range(app.n):
             listaTarefa.append([i,j,TT])
             TT = np.zeros((network.nComputadores,network.nComputadores))
 
+m = Model()
 
-        
+scaling = 10 #"intervalo min de tempo"
+x = {}
+l = ()
+t = 1
+for i in range(app.n):
+    for c in range(network.nComputadores):
+        for t in range(int(tMax)):
+            x[i,c,t,int(t+TE[i][c])] = m.addVar(vtype=GRB.BINARY,
+                name=("x["+str(i)+","+str(c)+","+str(t)+","+str(int(t+TE[i][c]))+"]"))
 
+y = ()
+for v in range(len(V)):
+    for c in range(network.nComputadores):
+        for t in range(int(tMax)):
+            y += ((v,c,t,int(t+TB[v][c])),)
+m.addVars(y, vtype=GRB.BINARY)
+varTmax = m.addVar(vtype=GRB.INTEGER, name="tMax", ub=int(tMax),obj=1)
+
+for i in range(app.n):
+    for c in range(network.nComputadores):
+        for t in range(int(tMax)):
+            m.addConstr(int(t+TE[i][c]) * x[i,c,t,int(t+TE[i][c])] <= varTmax,
+                        name=("c1["+str(i)+","+str(c)+","+str(t)+","+str(int(t+TE[i][c]))+"]"))
+
+for i in range(app.n):
+    m.addConstr(quicksum( x[i,c,t,int(t+TE[i][c])] for c in range(network.nComputadores)  for t in range(int(tMax))) == 1,
+                        name=("c2["+str(i)+"]"))
+
+
+
+m.update()
+m.write("modelo.lp")
