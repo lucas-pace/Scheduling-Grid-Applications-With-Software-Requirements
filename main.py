@@ -281,7 +281,7 @@ for i in range(app.n):
                         name=("c2["+str(i)+"]"))
     
 """
-
+"""
 ttAux = ()
 for ij in range(len(listaTarefa)):
     app1 = listaTarefa[ij][0]
@@ -294,15 +294,29 @@ for ij in range(len(listaTarefa)):
                 for t1Linha in range(int(t-getTT(app1,app2,comp1,comp2)-TE[app1][comp1])):
                     m.chgCoeff(1 * x[app1,comp1,t1Linha,int(t1Linha+TE[app1][comp1])], c3name )
             
-#            m.addConstr(quicksum( x[app1,c,t1Linha,int(t1Linha+TE[app1][c])]  
-#                        for t1Linha in range(int(t-getTT(app1,app2,j,c)-TE[app1][c]))  for c in range(network.nComputadores)) 
-#                        - x[app2,j,t,int(t+TE[app2][j])] >= 0,
-#                        name=("c3["+str(app1)+","+str(app2)+","+str(j)+","+str(t)+"]"))
-
-
 
 """
-                        
+#intalaçao MV [i,c,(t1,t2)]
+
+for i in range(app.n):
+    for v in range(len(V)):
+        for comp1 in range(network.nComputadores):
+            for t in range(int(tMax)):
+                varY = ("varY["+str(v)+","+str(comp1)+","+str(t)+","+str(int(t+TB[v][c]))+"]")
+                m.addConstr(- x[i,comp1,t,int(t+TE[i][comp1])] >= 0, name=varY)
+         
+
+
+   #Processamento no computador c [c,t]        
+
+for c in range(network.nComputadores):
+    for t in range(int(tMax)):
+        m.addConstr(quicksum(varX[i,c,t,int(t+TB[v][c])] for i in range(app.n) + varY[v,c,t,int(t+TB[v][c])] for v in range(network.nComputadores)  - int(N[c])   <= 0 ))
+
+"""
+
+"""
+"""                     
 for ij in range(len(listaTarefa)):
     for c in range(network.nComputadores):
         for t in range(int(tMax)):
