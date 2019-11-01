@@ -259,12 +259,13 @@ for i in range(app.n):
             x[i,c,t,int(t+TE[i][c])] = m.addVar(vtype=GRB.BINARY,
                 name=("x["+str(i)+","+str(c)+","+str(t)+","+str(int(t+TE[i][c]))+"]"))
 
-y = ()
+y = {}
 for v in range(len(V)):
     for c in range(network.nComputadores):
         for t in range(int(tMax)):
-            y += ((v,c,t,int(t+TB[v][c])),)
-m.addVars(y, vtype=GRB.BINARY)
+            y[v,c,t,int(t+TB[v][c])] = m.addVar(vtype=GRB.BINARY,
+                name=("y["+str(v)+","+str(c)+","+str(t)+","+str(int(t+TB[v][c]))+"]"))
+
 varTmax = m.addVar(vtype=GRB.INTEGER, name="tMax", ub=int(tMax),obj=1)
 
 
@@ -280,8 +281,7 @@ for i in range(app.n):
     m.addConstr(quicksum( x[i,c,t,int(t+TE[i][c])] for c in range(network.nComputadores)  for t in range(int(tMax))) == 1,
                         name=("c2["+str(i)+"]"))
     
-"""
-"""
+
 ttAux = ()
 for ij in range(len(listaTarefa)):
     app1 = listaTarefa[ij][0]
@@ -296,27 +296,25 @@ for ij in range(len(listaTarefa)):
             
 
 """
-#intalaçao MV [i,c,(t1,t2)]
 
-for i in range(app.n):
-    for v in range(len(V)):
-        for comp1 in range(network.nComputadores):
-            for t in range(int(tMax)):
-                varY = ("varY["+str(v)+","+str(comp1)+","+str(t)+","+str(int(t+TB[v][c]))+"]")
-                m.addConstr(- x[i,comp1,t,int(t+TE[i][comp1])] >= 0, name=varY)
+#intalaçao MV [i,c,(t1,t2)]
+for comp1 in range(network.nComputadores):
+    for t in range(int(tMax)):
+        varY = ("varY["+str(v)+","+str(comp1)+","+str(t)+","+str(int(t+TB[v][comp1]))+"]")
+        m.addConstr(quicksum(y[v,comp1,tLinha, int(tLinha+TB[v][comp1])] - x[i,comp1,t,int(t+TE[i][comp1])]  for v in range(len(V)) for tLinha in range(t)) >= 0, name=varY)
          
 
 
    #Processamento no computador c [c,t]        
+        
 
 for c in range(network.nComputadores):
     for t in range(int(tMax)):
-        m.addConstr(quicksum(varX[i,c,t,int(t+TB[v][c])] for i in range(app.n) + varY[v,c,t,int(t+TB[v][c])] for v in range(network.nComputadores)  - int(N[c])   <= 0 ))
+        m.addConstr(quicksum(x[i,c,t,int(t+TE[i][c])]  + y[v,c,t,int(t+TB[v][c])]  - int(N[c]) for v in range(network.nComputadores) for i in range(app.n))  <= 0 )
 
-"""
 
-"""
-"""                     
+
+"""                  
 for ij in range(len(listaTarefa)):
     for c in range(network.nComputadores):
         for t in range(int(tMax)):
