@@ -266,11 +266,12 @@ for v in range(len(V)):
             y[v,c,t,int(t+TB[v][c])] = m.addVar(vtype=GRB.BINARY,
                 name=("y["+str(v)+","+str(c)+","+str(t)+","+str(int(t+TB[v][c]))+"]"))
 
+auxR = m.addVar()
 varTmax = m.addVar(vtype=GRB.INTEGER, name="tMax", ub=int(tMax),obj=1)
 
 
 
-"""
+
 for i in range(app.n):
     for c in range(network.nComputadores):
         for t in range(int(tMax)):
@@ -282,26 +283,26 @@ for i in range(app.n):
                         name=("c2["+str(i)+"]"))
     
 
-ttAux = ()
+
+
 for ij in range(len(listaTarefa)):
     app1 = listaTarefa[ij][0]
     app2 = listaTarefa[ij][1]
     for comp2 in range(network.nComputadores):
         for t in range(int(tMax)):
-            c3name = ("c3["+str(app1)+","+str(app2)+","+str(comp2)+","+str(t)+"]")
-            m.addConstr(- x[app2,comp2,t,int(t+TE[app2][comp2])] >= 0, name=c3name)
             for comp1 in range(network.nComputadores):
                 for t1Linha in range(int(t-getTT(app1,app2,comp1,comp2)-TE[app1][comp1])):
-                    m.chgCoeff(1 * x[app1,comp1,t1Linha,int(t1Linha+TE[app1][comp1])], c3name )
+                    c3name = ("c3["+str(app1)+ "," + str(app2) + "," + str(comp1) + "," + str(comp2) + "," + str(t) + "," + str(t1Linha) + "]")
+                    m.addConstr(x[app1,comp1,t1Linha,int(t1Linha+TE[app1][comp1])] - x[app2,comp2,t,int(t+TE[app2][comp2])] >= 0, name=c3name)
             
 
-"""
+
 
 #intalaçao MV [i,c,(t1,t2)]
 for comp1 in range(network.nComputadores):
     for t in range(int(tMax)):
-        varY = ("varY["+str(v)+","+str(comp1)+","+str(t)+","+str(int(t+TB[v][comp1]))+"]")
-        m.addConstr(quicksum(y[v,comp1,tLinha, int(tLinha+TB[v][comp1])] - x[i,comp1,t,int(t+TE[i][comp1])]  for v in range(len(V)) for tLinha in range(t)) >= 0, name=varY)
+        c4name = ("c4["+str(v)+","+str(comp1)+","+str(t)+","+str(int(t+TB[v][comp1]))+"]")
+        m.addConstr(quicksum(y[v,comp1,tLinha, int(tLinha+TB[v][comp1])] - x[i,comp1,t,int(t+TE[i][comp1])]  for v in range(len(V)) for tLinha in range(t)) >= 0, name=c4name)
          
 
 
@@ -310,20 +311,11 @@ for comp1 in range(network.nComputadores):
 
 for c in range(network.nComputadores):
     for t in range(int(tMax)):
-        m.addConstr(quicksum(x[i,c,t,int(t+TE[i][c])]  + y[v,c,t,int(t+TB[v][c])]  - int(N[c]) for v in range(network.nComputadores) for i in range(app.n))  <= 0 )
+        c5name = ("c5[" + str(c) + "," + str(t) + "]")
+        m.addConstr(quicksum(x[i,c,t,int(t+TE[i][c])]  + y[v,c,t,int(t+TB[v][c])]  - int(N[c]) for v in range(network.nComputadores) for i in range(app.n))  <= 0 , name=c5name )
 
 
-
-"""                  
-for ij in range(len(listaTarefa)):
-    for c in range(network.nComputadores):
-        for t in range(int(tMax)):
-            m.addConstr(quicksum( x[i,cLinha,tLinha,int(tLinha+TE[i][cLinha])] for i in range(app.n)  
-                     for tLinha in range(tMax) for cLinha in range(network.nComputadores) ) >= x[j,c,t,int(t+TE[0][c])], 
-                    name="c3[" + str(i) + "," + str(cLinha) + "," + str(tLinha ) + "," + str(int(tLinha+TE[i][cLinha])) + " - " + str(j) + "," 
-                    + str(j) + "," + str(c) + "," + str(t) + "," + str(TE[j][c]) +"]") 
-    
- """
 
 m.update()
+m.optimize()
 m.write("modelo.lp")
