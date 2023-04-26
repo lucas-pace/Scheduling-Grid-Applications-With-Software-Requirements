@@ -59,10 +59,20 @@ Minimizar o tempo total para a realização de uma determinada aplicação.
 
 
   
-LEITURA DE DADOS:
-  Expressões Regulares
-AMBIENTE
-  Spyder
-  Windows
-SOLVER
-  Gurobi - Python
+# Tecnologias
+  
+
+ - Leitura de Dados:
+	 - Expressões Regulares
+- Ambiente
+	- Spyder
+	- Windows
+- Solvar
+	- Gurobi - Python
+
+
+
+# Resultados
+
+![image](https://user-images.githubusercontent.com/38995017/234469417-1b5712a9-1365-4d94-8255-69a85ead86d9.png)
+
