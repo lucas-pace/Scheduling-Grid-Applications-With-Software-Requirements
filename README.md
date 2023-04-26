@@ -1,12 +1,17 @@
 # Scheduling Grid Applications With Software Requirements
 
+# O que é escalonamento
+
   O escalonamento (ou scheduling, em inglês) refere-se ao processo de alocar recursos de computação, como processadores, memória e dispositivos de armazenamento, para as tarefas a serem executadas em um sistema computacional. No contexto de sistemas em grade (grid), o escalonamento envolve a alocação de recursos distribuídos geograficamente para a execução de aplicações em uma grade de computadores interconectados. O objetivo do escalonamento é maximizar a utilização dos recursos disponíveis, minimizando o tempo de espera da execução de tarefas. 
 
 
+# O problema
 
-  O código fornecido é um script Python que resolve um problema de escalonamento de tarefas usando otimização matemática. O problema é definido da seguinte forma: dada um conjunto de tarefas, cada uma com um número específico de instruções, um conjunto de dependências entre as tarefas e um conjunto de computadores com diferentes velocidades de processamento e capacidades de comunicação, encontrar um cronograma ótimo para executar as tarefas nos computadores que minimiza o tempo total de conclusão.
+  Este software é um script Python que resolve um problema de escalonamento de tarefas usando otimização matemática. O problema é definido da seguinte forma: dada um conjunto de tarefas, cada uma com um número específico de instruções, um conjunto de dependências entre as tarefas e um conjunto de computadores com diferentes velocidades de processamento e capacidades de comunicação, encontrar um cronograma ótimo para executar as tarefas nos computadores que minimiza o tempo total de conclusão.
   
   Imagine o seguinte cenário: Bob precisa executar uma aplicação pesada que consiste em várias tarefas, algumas das quais podem depender umas das outras. Cada tarefa precisa ser executada em um software específico, que está em uma máquina virtual instalada em um computador. Para isso, o software precisa ser baixado, instalado e executado a partir de um repositório de máquinas virtuais. Cada tarefa tem várias instruções a serem executadas, e cada computador tem uma capacidade de processamento diferente para as tarefas. Embora possa ser possível executar duas tarefas em um mesmo computador em momentos diferentes, será necessário baixar a máquina virtual correspondente ao novo software, caso a máquina não o tenha. Qual é a forma mais rápida de executar esta aplicação?
+
+# Solução
 
   Para resolver esse problema, o código usa a biblioteca de otimização Gurobi, que é uma ferramenta para resolver problemas de programação linear e inteira mista. O código lê dados de entrada de arquivos e constrói um modelo matemático que representa o problema de escalonamento de tarefas. O modelo é então resolvido usando o solver Gurobi, e a solução é impressa no console.
 
